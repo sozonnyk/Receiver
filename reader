@@ -1,0 +1,21 @@
+#!/usr/bin/python
+
+import serial
+import httplib
+
+ser = serial.Serial("/dev/ttyAMA0", baudrate=115200, timeout=10.0)
+
+while True:
+  line = ser.readline().rstrip()
+  if line != '':
+     print line
+     data = line.split(',',1)
+     url = "/emoncms/input/post.json?node={0}&csv={1}&apikey=b53ec1abe610c66009b207d6207f2c9e".format(data[0],data[1])
+     conn = httplib.HTTPConnection("localhost")
+     conn.request("GET", url)
+     r1 = conn.getresponse()
+     print url
+     print r1.status, r1.reason
+
+
+
