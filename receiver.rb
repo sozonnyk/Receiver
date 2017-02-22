@@ -27,7 +27,10 @@ end
 @process = {
     #Sensors
     '4' => lambda do |v|
-      [v[0].round(1),v[1].round(1)]
+      # Magic correction coefficients counted experementally
+      t = v[0] - 0.5
+      h = v[1] - 3
+      [t.round(1), h.round(1)]
     end,
     '5' => lambda do |v|
       v[2] = calculate_pressure(v[2])
