@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
+require 'net/http'
+require 'rexml/document'
+require 'date'
+
 require 'aws-sdk'
 require 'serialport'
 require 'pry'
@@ -22,10 +26,36 @@ def calculate_kwh()
 
 end
 
+def request_uv
+  begin
+    xml = Net::HTTP.get('www.arpansa.gov.au', '/uvindex/realtime/xml/uvvalues.xml')
+    doc =  REXML::Document.new(xml)
+
+    doc.elements.each('stations/location') do |p|
+	if  p.attributes['id'] == 'sydney'
+	    ind = p.get_text('index').to_s
+	    stat = p.get_text('status').to_s
+	    dat = DateTime.parse(p.get_text('utcdatetime').to_s).to_time.to_i
+	    return ind if Time.new_to_i - dat <= 120 && stat == 'OK'
+        end
+     end
+  rescue 
+  end
+  -1
+end
+
 @last_value = {}
 
 @process = {
     #Sensors
+    '2' => lambda do |v|
+        [v[0],request_uv]
+    end,
+    '3' => lambda do |v|
+         t = v[0] - 0.5
+         h = v[1] - 1.6
+         [t.round(1), h.round(1)] 
+    end,
     '4' => lambda do |v|
       # Magic correction coefficients counted experementally
       t = v[0] - 0.5
