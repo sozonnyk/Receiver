@@ -49,7 +49,7 @@ end
 @process = {
     #Sensors
     '2' => lambda do |v|
-        [v[0],request_uv]
+        [v[0]-308,request_uv]
     end,
     '3' => lambda do |v|
          t = v[0] - 0.5
@@ -57,7 +57,7 @@ end
          [t.round(1), h.round(1)] 
     end,
     '4' => lambda do |v|
-      # Magic correction coefficients counted experementally
+      # Magic correction coefficients calculated experementally
       t = v[0] - 0.5
       h = v[1] - 3
       [t.round(1), h.round(1)]
